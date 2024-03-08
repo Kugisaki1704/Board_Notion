@@ -5,8 +5,7 @@ import StartingPage from './components/StartingPage'
 function App() {
   return (
     <div className="App">
-      <StartingPage/>
-    {/* <div className="flex">
+    <div className="flex">
       <div className="flex-1">
       <ProjectBoard listType="Not started"/>
       </div>
@@ -16,7 +15,7 @@ function App() {
       <div className="flex-1">
       <ProjectBoard listType="Completed"/>
       </div>
-    </div> */}
+    </div>
     </div>
   )
 }
