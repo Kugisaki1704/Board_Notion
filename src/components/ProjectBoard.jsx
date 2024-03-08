@@ -67,7 +67,21 @@ function ProjectBoard({ listType }) {
   return (
     <div className="project-board">
       <div className="list bg-white-100 p-4 rounded border-none">
-        <h2 className='text-lg font-semibold mb-2'><span className={`${randomColorClass}`}>{listType}</span> {todos.length}</h2>
+      <div className="flex items-center justify-between mb-2">
+  <h2 className='text-lg font-semibold'>
+    <span className={`${randomColorClass}`}>{listType}</span> {todos.length}
+  </h2>
+  <div className="flex">
+    <button onClick={handleRenameBoard} className="mr-4 focus:outline-none">
+      <HiDotsVertical className="text-gray-500 hover:text-gray-700 cursor-pointer" />
+    </button>
+    <button className="focus:outline-none">
+      <FaPlus className="text-gray-500 hover:text-gray-700 cursor-pointer" />
+    </button>
+  </div>
+</div>
+
+
         <ul>
           {todos.map((todo, index) => (
             <li key={index} className="bg-white rounded shadow p-2 mb-2">{todo}</li>
