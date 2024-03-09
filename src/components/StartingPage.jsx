@@ -25,7 +25,7 @@ const StartingPage = ({ tasks, setTasks }) => {
     }
 
     setTasks((prev)=>{
-      const list = [...prev , task];
+      const list = [...(prev || []), task];
 
       // save this to localStorage
       localStorage.setItem("tasks",JSON.stringify(list));
