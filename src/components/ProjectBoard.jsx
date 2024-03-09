@@ -58,7 +58,7 @@ const Section = ({ status, tasks, setTasks, todos, inProgress,closed })=>{
 
   let text="Not Started";
   let bg="bg-red-100";
-  let tasksToMap = todos;
+  let tasksToMap =todos;
 
 
   if(status === 'inProgress'){
