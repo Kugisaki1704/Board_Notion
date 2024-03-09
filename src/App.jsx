@@ -1,23 +1,28 @@
+import React, { useEffect, useState } from 'react';
+import StartingPage from './components/StartingPage';
+import ProjectBoard from './components/ProjectBoard';
+import { Toaster } from 'react-hot-toast';
 
-import ProjectBoard from './components/ProjectBoard'
-import StartingPage from './components/StartingPage'
+function App(){
+  const [tasks, setTasks] = useState([]);
 
-function App() {
+  console.log("tasks",tasks);
+  useEffect(()=>{
+    setTasks(JSON.parse(localStorage.getItem("tasks")))
+  },[])
+
+
   return (
-    <div className="App">
-    <div className="flex">
-      <div className="flex-1">
-      <ProjectBoard listType="Not started"/>
-      </div>
-      <div className="flex-1">
-      <ProjectBoard listType="In Progress"/>
-      </div>
-      <div className="flex-1">
-      <ProjectBoard listType="Completed"/>
-      </div>
+    <>
+    <Toaster />
+    <div className="w-screen h-screen flex flex-col items-center p-3 gap-16 pt-32">
+      <StartingPage tasks={tasks} setTasks={setTasks}/> 
+      <ProjectBoard tasks={tasks} setTasks={setTasks}/> 
+      {/* props */}
     </div>
-    </div>
+    
+    </>
   )
 }
 
-export default App
+export default App;
