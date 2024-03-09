@@ -1,74 +1,57 @@
-// import React, { useState } from 'react';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { v4 as uuidv4 } from 'uuid';
 
-function StartingPage() {
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
 
-  const handleNewTodoChange = (e) => {
-    setNewTodo(e.target.value);
-  };
+const StartingPage = ({ tasks, setTasks }) => {
 
-  const handleNewTodoSubmit = () => {
-    if (newTodo.trim() !== '') {
-      setTodos((prevTodos) => [
-        ...prevTodos,
-        { text: newTodo, isEditing: false }
-      ]);
-      setNewTodo('');
+  const [task , setTask]=useState({
+    // required for dragging and dropiing
+    id: "",
+    name:"",
+    status:"todo" ,
+  });
+  console.log(task);
+
+  console.log(task);
+  const handleSubmit = (e)=>{
+    e.preventDefault();
+    
+    if(task.name.length < 3){
+      toast.error("Less than 3 characters!");
     }
-  };
+    if(task.name.length > 100){
+      toast.error("More than 100 characters!");
+    }
 
-  const handleNewButtonClick = () => {
-    setTodos((prevTodos) => [
-      ...prevTodos,
-      { text: '', isEditing: true }
-    ]);
-  };
+    setTasks((prev)=>{
+      const list = [...prev , task];
 
-  const handleTodoEdit = (index, newText) => {
-    setTodos((prevTodos) => {
-      const updatedTodos = [...prevTodos];
-      updatedTodos[index].text = newText;
-      updatedTodos[index].isEditing = false;
-      return updatedTodos;
+      // save this to localStorage
+      localStorage.setItem("tasks",JSON.stringify(list));
+      return list;
+      // this updates tasks 
     });
-  };
+
+    toast.success("Task Created!");
+
+    setTask({
+      id: "",
+    name:"",
+    status:"todo" ,
+    });
+  }
+
 
   return (
-    <div>
-      {todos.map((todo, index) => (
-        <div key={index}>
-          {todo.isEditing ? (
-            <div>
-              <textarea
-                value={todo.text}
-                onChange={(e) => handleTodoEdit(index, e.target.value)}
-                placeholder="Enter your new todo..."
-                rows="3"
-                cols="50"
-              />
-              <button
-                onClick={() => handleTodoEdit(index, todo.text)}
-                className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <div>
-              <div>{todo.text}</div>
-              <button
-                onClick={() => handleNewButtonClick(index)}
-                className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
-              >
-                + New
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+    <form onSubmit={handleSubmit}>
+    <input type="text" className='border-2 rounded-md mr-4 h-10 w-64 px-1'
+    value={task.name}
+    onChange={(e)=> setTask({...task,id: uuidv4(), name:e.target.value})}/>
+
+    <button className='bg-green-400 rounded-md px-4 h-12 text-white'>New Task</button>
+    </form>
   );
-}
+};
 
 export default StartingPage;
