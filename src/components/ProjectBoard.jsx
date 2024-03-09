@@ -1,110 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HiDotsVertical } from 'react-icons/hi'; // Import the meatballs icon
-import { FaPlus } from 'react-icons/fa'; // Import the plus icon
+import { FaHandPointLeft, FaPlus } from 'react-icons/fa'; // Import the plus icon
 
-function ProjectBoard({ listType }) {
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
-  const [showNewTodoInput, setShowNewTodoInput] = useState(false);
-  const [randomColorClass, setRandomColorClass] = useState('');
 
-  const colorClasses = [
-    'bg-blue-100',
-    'bg-green-100',
-    'bg-yellow-100',
-    'bg-red-100',
-    'bg-purple-100',
-    // Add more color classes as needed
-  ];
+const ProjectBoard = ({ tasks, setTasks }) => {
 
-  useEffect(() => {
-    const randomIndex = Math.floor(Math.random() * colorClasses.length);
-    setRandomColorClass(colorClasses[randomIndex]);
-  }, []);
+  const [todos, setTodos] = useState ([]);
+  const [inProgress, setInProgress] = useState ([]);
+  const [closed, setClosed] = useState ([]);
 
-  // Load todos from local storage on component mount
-  useEffect(() => {
-    const storedTodos = JSON.parse(localStorage.getItem(listType)) || [];
-    setTodos(storedTodos);
-  }, [listType]);
+  useEffect(()=>{
+    const fTodos = tasks.filter(task=>task.status==='todo');
+    const fInProgress = tasks.filter(task=>task.status==='inProgress');
+    const fClosed = tasks.filter(task=>task.status==='closed');
 
-  // Save todos to local storage whenever todos change
-  useEffect(() => {
-    localStorage.setItem(listType, JSON.stringify(todos));
-  }, [listType, todos]);
 
-  const handleNewTodoChange = (e) => {
-    setNewTodo(e.target.value);
-  };
+    setTodos(fTodos);
+    setInProgress(fInProgress);
+    setClosed(fClosed);
+  }, [tasks]);
 
-  const handleNewTodoSubmit = () => {
-    const trimmedTodo = newTodo.trim();
-    if (trimmedTodo !== '') {
-      setTodos([...todos, trimmedTodo]);
-      setNewTodo('');
-      setShowNewTodoInput(false);
-    }
-  };
-
-  const handleNewButtonClick = () => {
-    setShowNewTodoInput(true);
-  };
-
-  const handleRenameBoard = () => {
-    const newName = prompt('Enter new board name:', listType);
-    if (newName !== null) {
-      localStorage.removeItem(listType);
-      localStorage.setItem(newName, JSON.stringify(todos));
-      setTodos([]);
-      // Update listType state if needed
-    }
-  };
-
-  const handleAddNewBoard = () => {
-    // Implement functionality to add a new board
-  };
-
+  const statuses = ['todo', 'inProgress','closed']
   return (
-    <div className="project-board">
-      <div className="list bg-white-100 p-4 rounded border-none">
-      <div className="flex items-center justify-between mb-2">
-  <h2 className='text-lg font-semibold'>
-    <span className={`${randomColorClass}`}>{listType}</span> {todos.length}
-  </h2>
-  <div className="flex">
-    <button onClick={handleRenameBoard} className="mr-4 focus:outline-none">
-      <HiDotsVertical className="text-gray-500 hover:text-gray-700 cursor-pointer" />
-    </button>
-    <button className="focus:outline-none">
-      <FaPlus className="text-gray-500 hover:text-gray-700 cursor-pointer" />
-    </button>
-  </div>
-</div>
-
-
-        <ul>
-          {todos.map((todo, index) => (
-            <li key={index} className="bg-white rounded shadow p-2 mb-2">{todo}</li>
-          ))}
-        </ul>
-        {showNewTodoInput ? (
-          <div className='mb-4'>
-            <textarea
-              value={newTodo}
-              onChange={handleNewTodoChange}
-              className="button-gray font-sm py-2 px-4 rounded border-none"
-              placeholder="Enter your new todo..."
-              rows="1"
-              cols="50"
-            />
-            <button onClick={handleNewTodoSubmit} className='button-gray font-bold py-2 px-4 rounded'>Save</button>
-          </div>
-        ) : (
-          <button onClick={handleNewButtonClick} className="button-gray font-bold py-2 px-4 rounded">+ New</button>
-        )}
-      </div>
+    <div className='flex gap-16'>
+      {statuses.map((status,index)=> 
+      <Section key={index}
+       status={status}
+        tasks={tasks} 
+        setTasks = {setTasks} 
+        todos={todos}
+         inProgress = {inProgress} 
+         closed={closed}
+         />
+         )}
     </div>
   );
-}
+};
 
 export default ProjectBoard;
+
+const Section = ({ status, tasks, setTasks, todos, inProgress,closed })=>{
+
+  let text="Not Started";
+  let bg="bg-red-100";
+  let tasksToMap = todos;
+
+
+  if(status === 'inProgress'){
+    text="In Progress"
+    bg="bg-yellow-100"
+    tasksToMap = inProgress;
+  }
+  if(status === 'closed'){
+    text="Completed"
+    bg="bg-blue-100"
+    tasksToMap = closed;
+  }
+
+  return(
+  <div className='w-64 flex justify-between items-center'>
+  <Header text={text} bg={bg} count={tasksToMap.length}/>
+    <div className="flex">
+          <HiDotsVertical className='text-gray-600 cursor-pointer' /><FaPlus style={{ marginRight: '0' }} className=' text-gray-600 cursor-pointer' />
+    </div>
+    <div className="flex flex-col">
+    {tasksToMap.length > 0 
+    && 
+    tasksToMap.map((task) => (
+      <Task key={task.id} task={task} tasks = {tasks} setTasks={setTasks}/>)
+    )};
+    </div>
+  </div>
+  );
+};
+
+const Header = ({ text, bg, count })=>{
+  return(
+  <div>
+   <h2 className="text-lg font-semibold mb-2 md:mb-0">
+    <span className={`${bg}`}>{text}</span> {count}
+    </h2>
+  
+  </div>
+  );
+};
+
+const Task = ({ task, tasks, setTasks })=>{
+
+const handleRemove = (id)=>{
+  console.log(id);
+}
+
+  return(
+  <div className={`relative p-4 mt-8 shadow-md rounded-md cursor-grab flex flex-col`}>
+   <p>{task.name}</p>
+   <button className='absolute bottom-1 right-1 text-slate-400' onClick={()=>handleRemove(task.id)}>
+
+   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>
+
+   </button>
+  </div>
+  );
+};
