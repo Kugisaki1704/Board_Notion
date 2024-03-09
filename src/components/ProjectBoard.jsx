@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { HiDotsVertical } from 'react-icons/hi'; // Import the meatballs icon
-import { FaHandPointLeft, FaPlus } from 'react-icons/fa'; // Import the plus icon
+import { FaPlus } from 'react-icons/fa'; // Import the plus icon
+import toast from 'react-hot-toast';
+import { useDrag, useDrop } from 'react-dnd';
 
 
 const ProjectBoard = ({ tasks, setTasks }) => {
@@ -10,6 +12,7 @@ const ProjectBoard = ({ tasks, setTasks }) => {
   const [closed, setClosed] = useState ([]);
 
   useEffect(()=>{
+    if(tasks){
     const fTodos = tasks.filter(task=>task.status==='todo');
     const fInProgress = tasks.filter(task=>task.status==='inProgress');
     const fClosed = tasks.filter(task=>task.status==='closed');
@@ -18,6 +21,7 @@ const ProjectBoard = ({ tasks, setTasks }) => {
     setTodos(fTodos);
     setInProgress(fInProgress);
     setClosed(fClosed);
+    }
   }, [tasks]);
 
   const statuses = ['todo', 'inProgress','closed']
@@ -41,6 +45,17 @@ export default ProjectBoard;
 
 const Section = ({ status, tasks, setTasks, todos, inProgress,closed })=>{
 
+  
+  const [{ isOver }, drop]= useDrop(()=>({
+    accept: "task",
+    drop : (item)=> addItemToSelection(item.id),
+    collect: (monitor)=>({
+      isOver : !!monitor.isOver(),
+    })
+  }))
+
+
+
   let text="Not Started";
   let bg="bg-red-100";
   let tasksToMap = todos;
@@ -57,20 +72,36 @@ const Section = ({ status, tasks, setTasks, todos, inProgress,closed })=>{
     tasksToMap = closed;
   }
 
+  const addItemToSelection = (id)=>{
+    setTasks(prev=>{
+      const mTasks = prev.map(t => {
+        if(t.id == id){
+          return {...t, status:status};
+        }
+        return t;
+      });
+      localStorage.setItem("tasks",JSON.stringify(mTasks));
+      toast("Task status changed!!")
+      return mTasks;
+    })
+  }
+
   return(
-  <div className='w-64 flex justify-between items-center'>
-  <Header text={text} bg={bg} count={tasksToMap.length}/>
-    <div className="flex">
-          <HiDotsVertical className='text-gray-600 cursor-pointer' /><FaPlus style={{ marginRight: '0' }} className=' text-gray-600 cursor-pointer' />
+    <div ref={drop} className={`w-64 rounded-md p-2 ${isOver ? "bg-slate-200" : ""}`}>
+    <div className='flex justify-between items-center'>
+      <Header text={text} bg={bg} count={tasksToMap.length}/>
+      <div className="flex">
+        <HiDotsVertical className='text-gray-600 cursor-pointer' />
+        <FaPlus style={{ marginRight: '0' }} className=' text-gray-600 cursor-pointer' />
+      </div>
     </div>
     <div className="flex flex-col">
-    {tasksToMap.length > 0 
-    && 
-    tasksToMap.map((task) => (
-      <Task key={task.id} task={task} tasks = {tasks} setTasks={setTasks}/>)
-    )};
+      {tasksToMap.length > 0 && tasksToMap.map((task) => (
+        <Task key={task.id} task={task} tasks={tasks} setTasks={setTasks}/>
+      ))}
     </div>
   </div>
+  
   );
 };
 
@@ -87,12 +118,27 @@ const Header = ({ text, bg, count })=>{
 
 const Task = ({ task, tasks, setTasks })=>{
 
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'task',
+    item:{id:task.id},
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+console.log(isDragging);
+
 const handleRemove = (id)=>{
   console.log(id);
+
+  const fTasks = tasks.filter(t => t.id !== id);
+
+  localStorage.setItem("tasks",JSON.stringify(fTasks));
+  setTasks(fTasks);
+  toast("Task removed!")
 }
 
   return(
-  <div className={`relative p-4 mt-8 shadow-md rounded-md cursor-grab flex flex-col`}>
+  <div ref={drag} className={`relative p-4 mt-8 shadow-md rounded-md cursor-grab flex flex-col ${isDragging ? "opacity-25":"opacity-100"}`}>
    <p>{task.name}</p>
    <button className='absolute bottom-1 right-1 text-slate-400' onClick={()=>handleRemove(task.id)}>
 
