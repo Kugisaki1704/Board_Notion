@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { HiDotsVertical } from 'react-icons/hi'; // Import the meatballs icon
+import { HiDotsHorizontal } from 'react-icons/hi'; // Import the meatballs icon
 import { FaPlus } from 'react-icons/fa'; // Import the plus icon
 import toast from 'react-hot-toast';
 import { useDrag, useDrop } from 'react-dnd';
+import { Link } from 'react-router-dom';
 
 
 const ProjectBoard = ({ tasks, setTasks }) => {
@@ -90,9 +91,9 @@ const Section = ({ status, tasks, setTasks, todos, inProgress,closed })=>{
     <div ref={drop} className={`w-64 rounded-md p-2 ${isOver ? "bg-slate-200" : ""}`}>
     <div className='flex justify-between items-center'>
       <Header text={text} bg={bg} count={tasksToMap.length}/>
-      <div className="flex">
-        <HiDotsVertical className='text-gray-600 cursor-pointer' />
-        <FaPlus style={{ marginRight: '0' }} className=' text-gray-600 cursor-pointer' />
+      <div className="flex gap-3">
+        <HiDotsHorizontal className='text-gray-500 hover:text-gray-700 cursor-pointer' />
+        <FaPlus style={{ marginRight: '0' }} className=' text-gray-500 hover:text-gray-700 cursor-pointer' />
       </div>
     </div>
     <div className="flex flex-col">
@@ -139,7 +140,9 @@ const handleRemove = (id)=>{
 
   return(
   <div ref={drag} className={`relative p-4 mt-8 shadow-md rounded-md cursor-grab flex flex-col ${isDragging ? "opacity-25":"opacity-100"}`}>
-   <p>{task.name}</p>
+     <Link to={`/taskDetail/${task.id}`}>
+      <p>{task.name}</p>
+    </Link>
    <button className='absolute bottom-1 right-1 text-slate-400' onClick={()=>handleRemove(task.id)}>
 
    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
